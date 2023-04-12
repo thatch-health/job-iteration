@@ -2,6 +2,7 @@
 
 require_relative "./active_record_batch_enumerator"
 require_relative "./active_record_enumerator"
+require_relative "./active_storage_csv_enumerator"
 require_relative "./csv_enumerator"
 require_relative "./throttle_enumerator"
 require_relative "./nested_enumerator"
@@ -145,6 +146,10 @@ module JobIteration
 
     def build_csv_enumerator(enumerable, cursor:)
       CsvEnumerator.new(enumerable).rows(cursor: cursor)
+    end
+
+    def build_active_storage_csv_enumerator(attachment_or_blob, cursor:, **kwargs)
+      ActiveStorageCsvEnumerator.new(attachment_or_blob, cursor: cursor, **kwargs)
     end
 
     # Builds Enumerator for nested iteration.
