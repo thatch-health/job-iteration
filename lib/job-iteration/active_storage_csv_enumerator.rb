@@ -90,7 +90,9 @@ module JobIteration
         end
 
         def download_chunk(cursor)
-            @blob.download_chunk(cursor..cursor + @chunk_size - 1)
+            return nil if cursor >= @blob.byte_size
+            
+            @blob.download_chunk(cursor..[cursor + @chunk_size - 1, @blob.byte_size].min)
         end
     end
 end
