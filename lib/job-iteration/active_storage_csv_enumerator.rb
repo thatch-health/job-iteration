@@ -27,8 +27,9 @@ module JobIteration
             
             # read header
             hdr, hdr_cursor = ingest_row(0)
+            @header = CSV.parse(hdr)[0]
             @cursor = hdr_cursor if hdr_cursor > @cursor
-            @parse_opts[:headers] = CSV.parse(hdr)[0] if include_header
+            @parse_opts[:headers] = @header if include_header
         end
 
         def rows
@@ -50,6 +51,8 @@ module JobIteration
                 end
             end
         end
+
+        attr_accessor :header
 
         private
 
