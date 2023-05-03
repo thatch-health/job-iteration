@@ -24,6 +24,7 @@ module JobIteration
             @parse_opts = parse_opts
 
             @row_sep = @parse_opts[:row_sep] || "\n"
+            @quote_char = @parse_opts[:quote_char] || "\""
             
             # read header
             hdr, hdr_cursor = ingest_row(0)
@@ -59,7 +60,7 @@ module JobIteration
         def ingest_batch(cursor)
             rows = ""
             
-            while rows.count(@row_sep) < @batch_size
+            while rows.count(@row_sep) < @batch_size && rows.count(@quote_char) % 2 == 0
                 chunk = download_chunk(cursor)
                 break if chunk.nil? || chunk.empty?
 
@@ -76,7 +77,8 @@ module JobIteration
 
         def ingest_row(cursor)
             row = ""
-            until row.include?(@row_sep)
+
+            until row.include?(@row_sep) && row.count(@quote_char) % 2 == 0
                 chunk = download_chunk(cursor)
                 break if chunk.nil? || chunk.empty?
 
