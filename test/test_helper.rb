@@ -41,6 +41,10 @@ end
 
 ActiveJob::Base.queue_adapter = :iteration_test
 
+class ProductFile < ActiveRecord::Base
+  has_one_attached :file
+end
+
 class Product < ActiveRecord::Base
   has_many :comments
 end
