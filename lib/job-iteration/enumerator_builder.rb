@@ -2,6 +2,7 @@
 
 require_relative "./active_record_batch_enumerator"
 require_relative "./active_record_enumerator"
+require_relative "./active_storage_csv_enumerator"
 require_relative "./csv_enumerator"
 require_relative "./throttle_enumerator"
 require_relative "./nested_enumerator"

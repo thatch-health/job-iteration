@@ -57,6 +57,22 @@ class TravelRoute < ActiveRecord::Base
   self.primary_key = [:origin, :destination]
 end
 
+# CSV wrapper to help test Active Storage CSV enumerator.
+class MockActiveStorageBlob
+  def initialize(io_or_path)
+    @io = io_or_path.is_a?(String) ? File.open(io_or_path) : io_or_path
+  end
+
+  def download_chunk(range)
+    @io.seek(range.begin, IO::SEEK_SET)
+    @io.read(range.size)
+  end
+
+  def byte_size
+    @io.size
+  end
+end
+
 host = ENV["USING_DEV"] == "1" ? "job-iteration.railgun" : "localhost"
 
 connection_config = {
