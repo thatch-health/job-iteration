@@ -1,17 +1,19 @@
 # froze_string_literal: true
 
+require "csv"
+
 module JobIteration
     class ActiveStorageCsvEnumerator
         
         """
         @param [ActiveStorage::Attachment, ActiveStorage::Blob] attachment_or_blob
         @param [Integer] cursor - byte offset to start reading from
-        @param [Boolean] include_header
+        @param [Boolean] include_header - does the file have a header?, defaults to true.
         @param [Integer] batch_size - # of rows to read
         @param [Integer] chunk_size - # of bytes to read at a time
         @param [Hash] parse_opts - options to pass to CSV
         """
-        def initialize(attachment_or_blob, cursor: nil, include_header: false, batch_size: 100, chunk_size: 256, **parse_opts)
+        def initialize(attachment_or_blob, cursor: nil, include_header: true, batch_size: 100, chunk_size: 256, **parse_opts)
             @blob = if attachment_or_blob.respond_to?(:blob)
                 attachment_or_blob.blob
             else
@@ -27,10 +29,12 @@ module JobIteration
             @quote_char = @parse_opts[:quote_char] || "\""
             
             # read header
-            hdr, hdr_cursor = ingest_row(0)
-            @header = CSV.parse(hdr)[0]
-            @cursor = hdr_cursor if hdr_cursor > @cursor
-            @parse_opts[:headers] = @header if include_header
+            if include_header
+                hdr, hdr_cursor = ingest_row(0)
+                @header = CSV.parse(hdr)[0]
+                @cursor = hdr_cursor if hdr_cursor > @cursor
+                @parse_opts[:headers] = @header if @parse_opts[:headers].present? && @parse_opts[:headers] != false
+            end
         end
 
         def rows
@@ -69,8 +73,9 @@ module JobIteration
             end
 
             # trim any excess bytes read
-            cursor = cursor - (rows.size - rows.rindex(@row_sep) + @row_sep.size)
-            rows = rows[0..rows.rindex(@row_sep) + @row_sep.size - 1]
+            row_sep_index = find_nth_index(rows, @row_sep, @batch_size)
+            cursor = cursor - (rows.size - row_sep_index - @row_sep.size)
+            rows = rows[0..row_sep_index + @row_sep.size - 1]
         
             [rows, cursor]
         end
@@ -98,6 +103,20 @@ module JobIteration
             return nil if cursor >= @blob.byte_size
             
             @blob.download_chunk(cursor..[cursor + @chunk_size - 1, @blob.byte_size].min)
+        end
+
+        def find_nth_index(str, substr, n)
+            return nil if n < 1
+            index = -1
+            
+            while n > 0
+                i = str.index(substr, index + 1)
+                return nil || index if i.nil?
+
+                index = i
+                n -= 1
+            end
+        index
         end
     end
 end

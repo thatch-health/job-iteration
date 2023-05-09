@@ -148,10 +148,6 @@ module JobIteration
       CsvEnumerator.new(enumerable).rows(cursor: cursor)
     end
 
-    def build_active_storage_csv_enumerator(attachment_or_blob, cursor:, **kwargs)
-      ActiveStorageCsvEnumerator.new(attachment_or_blob, cursor: cursor, **kwargs)
-    end
-
     # Builds Enumerator for nested iteration.
     #
     # @param enums [Array<Proc>] an Array of Procs, each should return an Enumerator.
