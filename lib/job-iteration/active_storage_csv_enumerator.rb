@@ -1,4 +1,4 @@
-# froze_string_literal: true
+# frozen_string_literal: true
 
 require "csv"
 
@@ -38,7 +38,7 @@ module JobIteration
         end
 
         def rows
-            Enumerator.new() do |yielder|
+            Enumerator.new(@blob.byte_size) do |yielder|
                 while (row, cursor = ingest_row(@cursor))
                     break if row.empty?
                     @cursor= cursor
@@ -48,7 +48,7 @@ module JobIteration
         end
 
         def batches
-            Enumerator.new do |yielder|
+            Enumerator.new(@blob.byte_size) do |yielder|
                 while (rows, cursor = ingest_batch(@cursor))
                     break if rows.empty?
                     @cursor = cursor
@@ -62,7 +62,7 @@ module JobIteration
         private
 
         def ingest_batch(cursor)
-            rows = ""
+            rows = +""
             
             while rows.count(@row_sep) < @batch_size && rows.count(@quote_char) % 2 == 0
                 chunk = download_chunk(cursor)
@@ -81,7 +81,7 @@ module JobIteration
         end
 
         def ingest_row(cursor)
-            row = ""
+            row = +""
 
             until row.include?(@row_sep) && row.count(@quote_char) % 2 == 0
                 chunk = download_chunk(cursor)
