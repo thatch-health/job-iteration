@@ -76,6 +76,8 @@ module JobIteration
             row_sep_index = find_nth_index(rows, @row_sep, @batch_size)
             cursor = cursor - (rows.size - row_sep_index - @row_sep.size)
             rows = rows[0..row_sep_index + @row_sep.size - 1]
+
+            rows.lstrip!
         
             [rows, cursor]
         end
@@ -95,6 +97,8 @@ module JobIteration
                     cursor += chunk.size
                 end
             end
+
+            row.lstrip!
 
             [row, cursor]
         end
