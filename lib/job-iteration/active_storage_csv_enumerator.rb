@@ -43,6 +43,7 @@ module JobIteration
                     break if row.empty?
 
                     begin
+                        puts row
                         csv = CSV.new(row, **@parse_opts)
                         @cursor = cursor
                         yielder.yield(csv, @cursor)
