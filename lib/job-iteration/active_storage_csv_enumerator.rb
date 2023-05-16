@@ -42,7 +42,14 @@ module JobIteration
                 while (row, cursor = ingest_row(@cursor))
                     break if row.empty?
                     @cursor= cursor
-                    yielder.yield(CSV.new(row, **@parse_opts), @cursor)
+
+                    begin
+                        yielder.yield(CSV.new(row, **@parse_opts), @cursor)
+                    rescue CSV::MalformedCSVError => e
+                        binding.break
+                        raise e
+                    end
+
                 end
             end
         end
