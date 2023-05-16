@@ -43,7 +43,6 @@ module JobIteration
                     break if row.empty?
 
                     begin
-                        puts row
                         csv = CSV.new(row, **@parse_opts)
                         @cursor = cursor
                         yielder.yield(csv, @cursor)
@@ -92,13 +91,13 @@ module JobIteration
         def ingest_row(cursor)
             row = +""
 
-            until row.include?(@row_sep) && row.count(@quote_char) % 2 == 0
+            until row.include?(@row_sep)
                 chunk = download_chunk(cursor)
                 break if chunk.nil? || chunk.empty?
 
                 if chunk.include?(@row_sep)
                     row += chunk[0..chunk.index(@row_sep) + @row_sep.size - 1]
-                    cursor+= chunk.index(@row_sep) + @row_sep.size
+                    cursor += chunk.index(@row_sep) + @row_sep.size
                 else
                     row += chunk
                     cursor += chunk.size

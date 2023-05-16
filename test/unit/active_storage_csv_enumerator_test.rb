@@ -64,7 +64,7 @@ module JobIteration
             csv = CSV.new(File.open("test/support/sample_csv_with_headers_and_quotes.csv"), headers: true)
 
             blob = MockActiveStorageBlob.new("test/support/sample_csv_with_headers_and_quotes.csv")
-            enum = JobIteration::ActiveStorageCsvEnumerator.new(blob, include_header: true, headers: true)
+            enum = JobIteration::ActiveStorageCsvEnumerator.new(blob, include_header: true, headers: true, chunk_size: 4)
 
             enum.rows.each do |row, cursor|
                 assert_equal(csv.shift, row.shift)
