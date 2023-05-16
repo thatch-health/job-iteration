@@ -41,10 +41,11 @@ module JobIteration
             Enumerator.new(@blob.byte_size) do |yielder|
                 while (row, cursor = ingest_row(@cursor))
                     break if row.empty?
-                    @cursor= cursor
 
                     begin
-                        yielder.yield(CSV.new(row, **@parse_opts), @cursor)
+                        csv = CSV.new(row, **@parse_opts)
+                        @cursor = cursor
+                        yielder.yield(csv, @cursor)
                     rescue CSV::MalformedCSVError => e
                         binding.break
                         raise e
