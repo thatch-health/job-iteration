@@ -91,7 +91,7 @@ module JobIteration
         def ingest_row(cursor)
             row = +""
 
-            until row.include?(@row_sep)
+            until row.include?(@row_sep) && row.count(@quote_char) % 2 == 0
                 chunk = download_chunk(cursor)
                 break if chunk.nil? || chunk.empty?
 
