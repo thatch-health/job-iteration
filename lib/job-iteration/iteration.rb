@@ -119,12 +119,14 @@ module JobIteration
     def deserialize(job_data) # @private
       super
       self.cursor_position = job_data["cursor_position"]
-      self.times_interrupted = job_data["times_interrupted"] || 0
-      self.total_time = job_data["total_time"] || 0
+      self.times_interrupted = Integer(job_data["times_interrupted"] || 0)
+      self.total_time = Float(job_data["total_time"] || 0.0)
     end
 
     def perform(*params) # @private
       interruptible_perform(*params)
+
+      nil
     end
 
     def retry_job(*, **)
@@ -133,6 +135,10 @@ module JobIteration
     end
 
     private
+
+    def interruption_adapter
+      @interruption_adapter ||= JobIteration::Integrations.load(self.class.queue_adapter_name)
+    end
 
     def enumerator_builder
       JobIteration.enumerator_builder.new(self)
@@ -293,7 +299,7 @@ module JobIteration
         return true
       end
 
-      JobIteration.interruption_adapter.call || (defined?(super) && super)
+      interruption_adapter.call || (defined?(super) && super)
     end
 
     def handle_completed(completed)
